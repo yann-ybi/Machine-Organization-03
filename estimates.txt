@@ -1,0 +1,125 @@
+Estimates
+
+estimate of the expected cache hit rate
+
+ - Row major access
+	- 90 deg rotation:  read: 1 | write: 4
+ why: we access the first element at index (0,0) <=> 0, it can be a hit or a miss if element accessed is not already in the cache
+for this read access some following adjacent elements get loaded into the cache 
+we store the first element at its rotated position by skiping k positions of the array. with k proportional to the height of the array
+for the write access the spacial locality is not good as we are skipping positions
+
+we access the next element which is adjacent to our previous read element, so it is already loaded into the cache in that order
+  it is a hit, the spacial locality is good 
+we store that next element in column major order at its rotated position by skipping k positions of the array, with k proportional to the height of the array.
+for the write access the spacial locality is not good as we are skipping elements
+
+We have mostly hits for reading access but all misses for storing 
+
+	- 180 deg rotation: read: 1 | write: 1
+ why: we access the first element at index (0,0) <=> 0, it can be a hit or a miss if element accessed is not already in the cache
+for this read access some following adjacent elements get loaded into the cache
+we store the first element at its rotated position which is the last element of our array
+
+we access the next element which is adjacent to the first accessed element, already loaded into the cache
+ so it is a hit, the spacial locality is good
+we store that next element in row major order, at its rotated position, adjacently to the first stored element, which is already loaded in the cache
+ so it is a hit, the spacial locality is good
+
+We have mostly hits for reading access and mostly hits for storing
+	
+ - Column major access
+	- 90 deg rotation: read: 4 || write: 1
+why: we access the first element at index (0,0) <=>, it can be a hit or a miss if element accessed is not already in the cache
+for this access some following adjacent elements gets loaded into the cache 
+we store the first element at its rotated position by skipping k positions, with k about the height of the array.
+
+we access the next element in column major order by skipping k elements, with k proportional to the width of the array. 
+ so it is a miss, the spacial locality is not good, that element might not be alreadt loaded into the cache
+we store that next element in row major order, the place in memory to store that next element is adjencent to the first element stored which is already loaded in the cache
+ so it is a hit, the spacial locality is good
+
+We have miss for reading access but mostly hits for storing 
+
+	- 180 deg rotation: read: 4 || write: 4
+why: we access the first element at index (0,0) <=> 0, it can be a hit or a miss if element accessed is not already in the cache
+for this access some following adjacent elements get loaded into the cache
+we store the first element at its rotated position which is the last element of our array
+
+we access the next element in column major order, by skipping k elements, with k about the width of the array, which is not already loaded into the cache
+ so it is a miss, the spacial locality is not good
+we store that next element in column major order, by skipping k positions, with k about the width of the array, which is not already loaded into the cache so it is a miss, the spacial locality is not good
+
+We have misses for accessing and misses for storing
+
+1. How many addition or subtraction operations are done for each pixel in
+the image?
+ - 90 deg rotation 4 additions
+ - 180 deg rotation 4 additions
+
+2. How many multiplication operations are done for each pixel in the image?
+ - 90 deg rotation 0
+ - 180 deg rotation 0
+
+3. How many division or modulus operations are done for each pixel in the
+image?
+ - 90 deg rotation: 2 modulus
+ - 180 deg rotaiton: 2 modulus
+
+4. How many comparison operations (equality, less than, and so forth) are
+done for each pixel in the image, not forgetting any loop-termination
+conditions? [*]
+ - 90 deg rotation 1 comparison
+	iter row major: 1 loop termination
+	iter col major: 2 loops termination 
+ - 180 deg rotation 1
+	iter row major: 1 loop termination
+        iter col major: 2 loops termination
+
+5. How many loads are done for each pixel in the image?
+ - 90 deg rotation 1
+ - 180 deg rotation 1
+
+6. Of those loads, what fraction hit in the cache?
+We assume that k elements gets loaded with k the width of the array
+ - 90 deg rotation 
+ row major: about 1
+the fraction hitting the cache would be k-1 / k
+ col major 0
+all missess, the next element in col major order is the k+1 element which is not loaded in the cache
+ - 180 deg rotation
+row major  about 1
+the fraction hiting the cash would be k-1/k
+col major 0 
+all misses, the next element in col major order is the k+1 element which is not loaded in the cache
+7. How many stores are done for each pixel in the image?
+ - 90 deg rotation: 1
+ - 180 deg rotation: 1
+
+8. Of those stores, what fraction are to lines that are already in the cache?
+ - 90 deg rotation: 
+we asume that the line size is h, with h the height of the array to rotate.
+row major: 0
+The element to store is at least at h+1 position it exceeds the line size h.
+col major: 1
+The element to store is at h position or less which is in our line size 
+ - 180 deg rotation
+We assume that the line is w which is the width of the array to rotate
+row major: 1
+the element to store is at w position or less which is in our line size
+col major: 0
+the element to store is at least a w+1 position which is not in our line size
+
+estimate expected speed 
+ - row major 
+	- 90 deg rotation: 2
+Good spacial locality on reads, bad spacial locality on writes
+	- 180 deg rotation: 1
+Mostly hits for reads and write. good spacial locality
+
+ - col major
+	- 90 deg rotation: 3 (our col major iterator has a nested loop of 2 loops so it should take a litte bit longer than row major 90 deg rotation)
+if we ignore that nested loop then the expected speed is the same as a row major 90 degree rotation of 2
+bad spacial locality on read, good spacial locality on writes
+	- 180 deg rotation: 4
+Misses on read and writing, bad spacial locality

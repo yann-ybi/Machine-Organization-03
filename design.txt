@@ -1,0 +1,21 @@
+DESIGN
+
+ Using the Gray::image read function from our csc411 image crate, we read the image. Than construct an array2 structure from it using our constructor
+
+what additional components you plan to use to implement ppmtrans
+I would have 3 functions, 
+	a rotate_90 function that would take our array2 structure of elements of type T and return a vector of reference mutable value of type T
+	a rotate_180 function that would take our array2 structure of elements of type T and return a vector of references mutable values of type T
+	- formula 90 degree rotation: (i,j) <=> (h-j-1, i) with w and h the width and height respectiveley of the image
+	- formula 180 degree rotation: (i,j) <=> (w-i-1, h-j-1) with w and h the width and height respectively of the image
+
+	our get_mut function taking a tuple of 2 usizes, iter_row_major and column_row_major functions retuning an iterator over a vector of tuples of 2 usizes from our array2 present in our library crate file
+	the map function from the standard library 
+
+Invariants on how those components work together to solve the problem
+	For each function we would use our iter_row_major/iter_row_col followed by a map function calling our get_mut which takes as agument a tuple of coordonates
+	for every element in our array2 structure iterate through the coordinates in either row major or column major order
+	for every coodinates apply the formula to get the coordinates of the rotated 2 dimmensional array
+	for every coordinates of the rotated 2 dimmensional array call get_mut on it to get the element of type T from our array2 structure using the mapping function
+	For every element of type T, collect it  into a vector
+	Using a write function from our csc411 image crate we write the transformed image to standard output with our vector of elements of type T
